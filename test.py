@@ -6,14 +6,14 @@ from pathlib import Path
 import torch
 from tqdm import tqdm
 
-import hw_asr.model as module_model
-from hw_asr.trainer import Trainer
-from hw_asr.utils import ROOT_PATH
-from hw_asr.utils.object_loading import get_dataloaders
-from hw_asr.utils.parse_config import ConfigParser
+import src.model as module_model
+from src.trainer import Trainer
+from src.utils import ROOT_PATH
+from src.utils.object_loading import get_dataloaders
+from src.utils.parse_config import ConfigParser
 
-DEFAULT_CHECKPOINT_PATH = ROOT_PATH / "default_test_model" / "checkpoint.pth"
 
+DEFAULT_CHECKPOINT_PATH = Path('/home/dpozdeev/asr_project_template/saved/models/default_config/1011_001801/checkpoint-epoch80.pth')
 
 def main(config, out_file):
     logger = config.get_logger("test")
@@ -44,6 +44,9 @@ def main(config, out_file):
 
     results = []
 
+    logits_list = []
+    gt_text_list = []
+
     with torch.no_grad():
         for batch_num, batch in enumerate(tqdm(dataloaders["test"])):
             batch = Trainer.move_batch_to_device(batch, device)
@@ -58,20 +61,21 @@ def main(config, out_file):
             )
             batch["probs"] = batch["log_probs"].exp().cpu()
             batch["argmax"] = batch["probs"].argmax(-1)
-            for i in range(len(batch["text"])):
-                argmax = batch["argmax"][i]
-                argmax = argmax[: int(batch["log_probs_length"][i])]
-                results.append(
-                    {
-                        "ground_trurh": batch["text"][i],
-                        "pred_text_argmax": text_encoder.ctc_decode(argmax.cpu().numpy()),
-                        "pred_text_beam_search": text_encoder.ctc_beam_search(
-                            batch["probs"][i], batch["log_probs_length"][i], beam_size=100
-                        )[:10],
-                    }
-                )
-    with Path(out_file).open("w") as f:
-        json.dump(results, f, indent=2)
+
+            log_probs = batch["log_probs"].cpu()
+            gt_texts = batch["text"]
+
+            for i in range(len(gt_texts)):
+                logits_list.append(log_probs[i].numpy())
+                gt_text_list.append(gt_texts[i])
+
+
+    import pickle
+    with open("logits_list", "wb") as fp:
+        pickle.dump(logits_list, fp)
+
+    with open("gt_text_list", "wb") as fp:
+        pickle.dump(gt_text_list, fp)
 
 
 if __name__ == "__main__":
