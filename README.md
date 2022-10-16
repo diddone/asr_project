@@ -4,8 +4,6 @@ Implemented [DeepSpeech2](https://arxiv.org/pdf/1512.02595.pdf).
 
 ## Installation guide
 
-< Write your installation guide here >
-
 Firstly clone repo and install requirements.
 
 ```shell
@@ -15,6 +13,16 @@ pip install -r requirements.txt
 pip install gdown
 python3 download_model_and_config.py
 ```
+
+Download model and lm
+
+```shell
+mkdir lm
+mkdir defaul_test_model
+python3 download_model_and_config.py
+python3 download_lm.py
+```
+
 
 Training summary:
 - Optimizer: Adam
