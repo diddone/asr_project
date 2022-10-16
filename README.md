@@ -3,7 +3,7 @@
 Implemented [DeepSpeech2](https://arxiv.org/pdf/1512.02595.pdf).
 
 Training summary:
-- Optimzer: Adam
+- Optimizer: Adam
 - Scheduler: OneCycleLR
 - Model: DeepSpeech2 (1 conv and 6 lstms with layernorms)
 - Dataset: full [LibriSpeech](https://www.openslr.org/12)
