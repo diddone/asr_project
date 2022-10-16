@@ -13,7 +13,7 @@ from src.utils.object_loading import get_dataloaders
 from src.utils.parse_config import ConfigParser
 
 
-DEFAULT_CHECKPOINT_PATH = Path('/home/dpozdeev/asr_project_template/saved/models/default_config/1011_001801/checkpoint-epoch80.pth')
+DEFAULT_CHECKPOINT_PATH = Path('defaul_test_model/checkpoint-epoch96.pth')
 
 from pyctcdecode import build_ctcdecoder
 from string import ascii_lowercase
