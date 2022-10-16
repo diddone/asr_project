@@ -2,6 +2,20 @@
 
 Implemented [DeepSpeech2](https://arxiv.org/pdf/1512.02595.pdf).
 
+## Installation guide
+
+< Write your installation guide here >
+
+Firstly clone repo and install requirements.
+
+```shell
+git clone https://github.com/diddone/asr_project
+cd asr_project
+pip install -r requirements.txt
+pip install gdown
+python3 download_model_and_config.py
+```
+
 Training summary:
 - Optimizer: Adam
 - Scheduler: OneCycleLR
@@ -20,17 +34,7 @@ Provided results for other part.
 - WER shallow LM 0.18023283293222706
 - CER shallow LM 0.08360096510883173
 
-## Installation guide
 
-< Write your installation guide here >
-
-Firstly clone repo and install requirements.
-
-```shell
-git clone https://github.com/diddone/asr_project
-cd asr_project
-pip install -r requirements.txt
-```
 
 
 ## Wandb Report Link
