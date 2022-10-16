@@ -13,4 +13,4 @@ pip install -r requirements.txt
 
 
 ## Wandb Report Link
-Wandb report with plots and metrics [link](https://wandb.ai/diddone/asr_project/reports/Report--VmlldzoyODAyMzc2)
+[Link](https://wandb.ai/diddone/asr_project/reports/Report--VmlldzoyODAyMzc2) to wandb report with plots and metrics
