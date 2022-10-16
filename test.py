@@ -15,6 +15,58 @@ from src.utils.parse_config import ConfigParser
 
 DEFAULT_CHECKPOINT_PATH = Path('/home/dpozdeev/asr_project_template/saved/models/default_config/1011_001801/checkpoint-epoch80.pth')
 
+from pyctcdecode import build_ctcdecoder
+from string import ascii_lowercase
+import numpy as np
+from src.metric.utils import calc_wer, calc_cer
+import kenlm
+import multiprocessing
+
+
+def eval_results_and_update_lm_preds(results, text_encoder):
+
+    def get_wer(target, predicted):
+        wers = [calc_wer(target_text, pred_text) for target_text, pred_text in zip(target, predicted)]
+
+        return sum(wers) / len(wers)
+
+    def get_cer(target, predicted):
+        cers = [calc_cer(target_text, pred_text) for target_text, pred_text in zip(target, predicted)]
+
+        return sum(cers) / len(cers)
+
+    argmax_preds_list = [res['pred_text_argmax'] for res in results]
+    logits_list = [res['logits'] for i, res in enumerate(results)]
+    gt_text_list = [res['ground_truth_text'] for res in results]
+
+    LM_BEST_PARAMS = (0.9, 2.0)
+    LM_PATH = str(ROOT_PATH / 'lm/lowercase_3-gram.arpa')
+    print(LM_PATH)
+    BEAM_WIDTH = 300
+
+    EMPTY_TOK = "<pad>"
+    lm_alphabet = [EMPTY_TOK] + text_encoder.alphabet
+
+    decoder = build_ctcdecoder(
+        lm_alphabet,
+        kenlm_model_path = LM_PATH,
+        alpha=LM_BEST_PARAMS[0],
+        beta=LM_BEST_PARAMS[1]
+    )
+
+    with multiprocessing.get_context("fork").Pool() as pool:
+        lm_preds_list = decoder.decode_batch(pool, logits_list, beam_width=BEAM_WIDTH)
+
+    print('Argmax WER', get_wer(gt_text_list, argmax_preds_list))
+    print('Argmax CER', get_cer(gt_text_list, argmax_preds_list))
+    print('LM WER', get_wer(gt_text_list, lm_preds_list))
+    print('LM CER', get_cer(gt_text_list, lm_preds_list))
+
+    for i, lm_pred in enumerate(lm_preds_list):
+        results[i]['pred_text_lm'] = lm_pred
+
+    return results
+
 def main(config, out_file):
     logger = config.get_logger("test")
 
@@ -44,9 +96,6 @@ def main(config, out_file):
 
     results = []
 
-    logits_list = []
-    gt_text_list = []
-
     with torch.no_grad():
         for batch_num, batch in enumerate(tqdm(dataloaders["test"])):
             batch = Trainer.move_batch_to_device(batch, device)
@@ -63,19 +112,27 @@ def main(config, out_file):
             batch["argmax"] = batch["probs"].argmax(-1)
 
             log_probs = batch["log_probs"].cpu()
-            gt_texts = batch["text"]
+            argmaxes = batch["argmax"].cpu()
+            for i in range(len(batch["text"])):
 
-            for i in range(len(gt_texts)):
-                logits_list.append(log_probs[i].numpy())
-                gt_text_list.append(gt_texts[i])
+                argmax = argmaxes[i][: int(batch["log_probs_length"][i])]
+                logits = log_probs[i][: int(batch["log_probs_length"][i])]
+                results.append(
+                    {
+                        "ground_truth_text": batch["text"][i],
+                        "pred_text_argmax": text_encoder.ctc_decode(argmax.numpy()),
+                        'logits': logits.numpy(),
+                        'logits_length': batch["log_probs_length"]
+                    }
+                )
 
+    results = eval_results_and_update_lm_preds(results, text_encoder)
 
-    import pickle
-    with open("logits_list", "wb") as fp:
-        pickle.dump(logits_list, fp)
+    save_keys_list = ['ground_truth_text', 'pred_text_argmax', 'pred_text_lm']
+    save_results = [res[key] for key in save_keys_list for res in results]
+    with Path(out_file).open("w") as f:
+        json.dump(save_results, f, indent=2)
 
-    with open("gt_text_list", "wb") as fp:
-        pickle.dump(gt_text_list, fp)
 
 
 if __name__ == "__main__":

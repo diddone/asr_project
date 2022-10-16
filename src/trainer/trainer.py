@@ -212,7 +212,7 @@ class Trainer(BaseTrainer):
             *args,
             **kwargs,
     ):
-        # TODO: implement logging of beam search results
+
         if self.writer is None:
             return
         argmax_inds = log_probs.cpu().argmax(-1).numpy()
@@ -254,7 +254,7 @@ class Trainer(BaseTrainer):
 
     #     self.writer.add_audio('audio with noise', wave_augs.augmentation_list[0](audio), sample_rate=sr, caption=caption)
     #     self.writer.add_audio('audio with pitch', wave_augs.augmentation_list[1](audio), sample_rate=sr, caption=caption)
-    
+
     @torch.no_grad()
     def get_grad_norm(self, norm_type=2):
         parameters = self.model.parameters()
