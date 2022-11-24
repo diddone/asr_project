@@ -19,6 +19,7 @@ Download model and lm
 ```shell
 mkdir lm
 mkdir defaul_test_model
+wget http://www.openslr.org/resources/11/3-gram.arpa.gz -P lm/
 python3 download_model_and_config.py
 python3 download_lm.py
 ```
