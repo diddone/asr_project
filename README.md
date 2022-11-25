@@ -38,24 +38,11 @@ All training details can be found in [report](https://wandb.ai/diddone/asr_proje
 
 Provided results for other part.
 
-- WER Argmax 0.25192699801889545
-- CER Argmax 0.09848671659088183
-- WER shallow LM 0.18023283293222706
-- CER shallow LM 0.08360096510883173
-
-
+Argmax WER 0.2651159555363254
+Argmax CER 0.10502687285110361
+LM WER 0.18848792641611095
+LM CER 0.08801816818572956
 
 
 ## Wandb Report Link
 [Link](https://wandb.ai/diddone/asr_project/reports/Report--VmlldzoyODAyMzc2) to wandb report with plots and metrics
-
-## UPD
-If linear grading will be aplied. Due to datasphere bugs one model was training a lot on train-clean-360 and train-other-500 with augmentations. After little tuning without them I get results:
-
-- WER 0.24104289971977025
-- CER 0.0937899395060756
-- WER 0.16657656234520304
-- CER 0.0780798601124191
-
-
-Links to [model](https://drive.google.com/uc?export=download&id=1saBj6YJCSqVqifq645rvsy-LXBYZsN9n) and [config](https://drive.google.com/uc?export=download&id=1S7GMc26aloq-lgSwCuky42mxeWMib0Jv). They can be downloaded using download_model_and_config.py file.
