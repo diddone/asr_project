@@ -38,10 +38,10 @@ All training details can be found in [report](https://wandb.ai/diddone/asr_proje
 
 Provided results for other part.
 
-Argmax WER 0.2651159555363254
-Argmax CER 0.10502687285110361
-LM WER 0.18848792641611095
-LM CER 0.08801816818572956
+- Argmax WER 0.2651159555363254
+- Argmax CER 0.10502687285110361
+- LM WER 0.18848792641611095
+- LM CER 0.08801816818572956
 
 
 ## Wandb Report Link
